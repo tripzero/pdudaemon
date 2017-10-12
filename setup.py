@@ -30,7 +30,7 @@ setup(
     description="LAVA PDU Deamon for APC PDU's",
     packages=find_packages(),
     install_requires=[
-        "daemon",
+        "python-daemon",
         "lockfile",
         "paramiko",
         "pexpect",

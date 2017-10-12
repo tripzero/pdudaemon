@@ -37,6 +37,7 @@ from lavapdu.drivers.devantech import DevantechETH008
 from lavapdu.drivers.devantech import DevantechETH8020
 from lavapdu.drivers.synaccess import SynNetBooter
 from lavapdu.drivers.egpms import EgPMS
+from lavapdu.drivers.cyberpower import CyberPower
 
 assert ACME
 assert APC7932
@@ -56,3 +57,4 @@ assert DevantechETH484
 assert DevantechETH008
 assert DevantechETH8020
 assert SynNetBooter
+assert CyberPower

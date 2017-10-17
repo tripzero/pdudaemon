@@ -4,7 +4,7 @@
 #  cyberpower PUD driver derived heavily from apcbase.py
 #
 
-#  
+#
 #  Copyright (C) 2017 Intel Corporation
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -60,7 +60,7 @@ class CyberPower(PDUDriver):
         return False
 
 
-    def _activate_port(self, port, activate):
+    def _activate_port(self, port, command):
         self.connection.expect("Command Information: Step 1")
         log.debug("process output: {}".format(self.connection.before))
         self.connection.expect("> ")
@@ -71,11 +71,13 @@ class CyberPower(PDUDriver):
         log.debug("process output: {}".format(self.connection.before))
         self.connection.expect("> ")
         log.debug("process output: {}".format(self.connection.before))
-        
-        if activate:
+
+        if command == "on":
             self.connection.send("1\r")
-        else:
+        elif command == "off":
             self.connection.send("2\r")
+        elif command == "reboot":
+            self.connection.send("3\r")
 
         # confirm the step
         self.connection.expect("Command Information: Step 3")
@@ -108,9 +110,8 @@ class CyberPower(PDUDriver):
         log.debug("process output: {}".format(self.connection.before))
         self.connection.send("1\r")
         log.debug("process output: {}".format(self.connection.before))
-        activate = command == "on"
-        print(port_number)
-        self._activate_port(port_number, activate)
+
+        self._activate_port(port_number, command)
 
 
     def _bombout(self):

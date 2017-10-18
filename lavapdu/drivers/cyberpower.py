@@ -94,20 +94,37 @@ class CyberPower(PDUDriver):
         log.debug("Attempting command: %s port: %i", command, port_number)
         # make sure in main menu here
         self._back_to_main()
+        log.debug("sending RETURN")
+
         self.connection.send("\r")
-        self.connection.expect("1- Device Manager")
+
+	#Main Menu
+
         log.debug("process output: {}".format(self.connection.before))
+        self.connection.expect("1- Device Manager")
         self.connection.expect("> ")
         log.debug("Entering Device Manager")
         log.debug("process output: {}".format(self.connection.before))
+
+        log.debug("sending 1 and RETURN")
         self.connection.send("1\r")
+        log.debug("process output: {}".format(self.connection.before))
+
+	#Device Manager Menu
+
         self.connection.expect("{}".format(self.product_name))
+	self.connection.expect("> ")
         log.debug("process output: {}".format(self.connection.before))
         self.connection.send("2\r")
+
+	#
+
         self.connection.expect("1- Start a Control Command")
         log.debug("process output: {}".format(self.connection.before))
         self.connection.expect("> ")
         log.debug("process output: {}".format(self.connection.before))
+
+        log.debug("sending 1 and RETURN")
         self.connection.send("1\r")
         log.debug("process output: {}".format(self.connection.before))
 
@@ -127,6 +144,10 @@ class CyberPower(PDUDriver):
     def _pdu_logout(self):
         self._back_to_main()
         log.debug("Logging out")
+        log.debug("sending RETURN")
+        self.connection.send("\r")
+        self.connection.expect("> ")
+        log.debug("sending 4 and RETURN")
         self.connection.send("4\r")
 
 
@@ -134,8 +155,10 @@ class CyberPower(PDUDriver):
         log.debug("Returning to main menu")
         self.connection.send("\r")
         self.connection.expect('>')
+        res = 1
         for _ in range(1, 20):
-            self.connection.send("\x1B")
+            log.debug("sending ESC and RETURN")
+            self.connection.send('\x1B')
             self.connection.send("\r")
             res = self.connection.expect(["4- Logout", "> "])
             log.debug("process output: {}".format(self.connection.before))
@@ -143,12 +166,18 @@ class CyberPower(PDUDriver):
                 log.debug("Back at main menu")
                 break
 
+        if res != 0:
+            raise Exception("Failed to get back to main menu: ({})".format(res))
+
+
+
 
     def get_connection(self):
         log.debug("Connecting to CyberPower PDU with: %s", self.exec_string)
         # only uncomment this line for FULL debug when developing
         # self.connection = pexpect.spawn(self.exec_string, logfile=sys.stdout)
         self.connection = pexpect.spawn(self.exec_string)
+        self.connection.delaybeforesend = 0.5
         self._pdu_login(self.username, self.password)
 
 
